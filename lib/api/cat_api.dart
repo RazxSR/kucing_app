@@ -40,11 +40,18 @@
 
 import 'network.dart';
 
-const String apiKey = '''live_CnZOJitopylWlHfqcEoeYcsUPkAJqtstrmNUZicjTazkTicuhzhKXbOchklGzgVy''';
+const String apiKey =
+    '''live_CnZOJitopylWlHfqcEoeYcsUPkAJqtstrmNUZicjTazkTicuhzhKXbOchklGzgVy''';
+
+// Define the proxyUrl constant here
+const String proxyUrl =
+    'http://localhost:8080/'; // MAKE SURE THIS MATCHES THE PORT YOUR CORS-ANYWHERE SERVER IS RUNNING ON
+
 // 1
-const String catAPIURL = 'https://api.thecatapi.com/v1/breeds?';
+const String catAPIURL = '${proxyUrl}https://api.thecatapi.com/v1/breeds?';
 // 2
-const String catImageAPIURL = 'https://api.thecatapi.com/v1/images/search?';
+const String catImageAPIURL =
+    '${proxyUrl}https://api.thecatapi.com/v1/images/search?';
 // 3
 const String breedString = 'breed_id=';
 // 4
@@ -59,10 +66,11 @@ class CatAPI {
     final catData = await network.getData();
     return catData;
   }
+
   // 8
   Future<String> getCatBreed(String breedName) async {
     final network =
-    Network('$catImageAPIURL$breedString$breedName&$apiKeyString');
+        Network('$catImageAPIURL$breedString$breedName&$apiKeyString');
     final catData = await network.getData();
     return catData;
   }

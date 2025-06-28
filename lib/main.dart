@@ -47,6 +47,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Cats',
       theme: ThemeData(
         primarySwatch: Colors.orange,
@@ -55,5 +56,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-

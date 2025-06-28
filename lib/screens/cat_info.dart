@@ -3,6 +3,8 @@ import 'dart:convert';
 import '../api/cat_api.dart';
 import '../models/cats.dart';
 
+const String proxyUrl = 'http://localhost:8080/';
+
 class CatInfo extends StatefulWidget {
   final String catBreed;
   final String catId;
@@ -18,6 +20,12 @@ class _CatInfoState extends State<CatInfo> {
 
   void getCatData() async {
     final catJson = await CatAPI().getCatBreed(widget.catId);
+
+    // ADD THIS CHECK HERE:
+    if (!mounted) {
+      // If the widget is no longer mounted, do nothing and return.
+      return;
+    }
 
     final dynamic catMap = json.decode(catJson);
 
@@ -51,11 +59,12 @@ class _CatInfoState extends State<CatInfo> {
           width: mediaSize.width,
           height: mediaSize.height,
           // 1
-           decoration: BoxDecoration(
-           image: DecorationImage(
-           // 2
-          image: NetworkImage(catList.breeds[0].url), fit: BoxFit.contain,
-        )),
+          decoration: BoxDecoration(
+              image: DecorationImage(
+            // 2
+            image: NetworkImage('${proxyUrl}${catList.breeds[0].url}'),
+            fit: BoxFit.contain,
+          )),
         ),
       );
     }
