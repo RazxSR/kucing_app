@@ -38,40 +38,72 @@
  *
  */
 
-import 'network.dart';
+// import 'network.dart'; // No longer needed if using http.get directly in CatAPI
+
+import 'package:http/http.dart' as http; // Import the http package
 
 const String apiKey =
-    '''live_CnZOJitopylWlHfqcEoeYcsUPkAJqtstrmNUZicjTazkTicuhzhKXbOchklGzgVy''';
+    '''live_CnZOJitopylWlHfqcEoeYcsUPkAJqtstrmNUZicjTazkTicuhzhKXbOOchklGzgVy'''; // Your API Key
 
-// Define the proxyUrl constant here
-const String proxyUrl =
-    'http://localhost:8080/'; // MAKE SURE THIS MATCHES THE PORT YOUR CORS-ANYWHERE SERVER IS RUNNING ON
+// IMPORTANT: Ensure this matches the port your cors-anywhere server is running
+const String proxyUrl = 'http://localhost:8080/';
 
-// 1
-const String catAPIURL = '${proxyUrl}https://api.thecatapi.com/v1/breeds?';
-// 2
+// Base URLs for TheCatAPI endpoints
+const String catAPIURL =
+    'https://api.thecatapi.com/v1/breeds'; // For all breeds or breed search
 const String catImageAPIURL =
-    '${proxyUrl}https://api.thecatapi.com/v1/images/search?';
-// 3
-const String breedString = 'breed_id=';
-// 4
-const String apiKeyString = 'x-api-key=$apiKey';
+    'https://api.thecatapi.com/v1/images/search'; // For image search
 
 class CatAPI {
-  // 5
+  // Method to get a list of all cat breeds
   Future<String> getCatBreeds() async {
-    // 6
-    final network = Network('$catAPIURL$apiKeyString');
-    // 7
-    final catData = await network.getData();
-    return catData;
+    final response = await http.get(
+      Uri.parse('$proxyUrl$catAPIURL'), // Proxy the request
+      headers: {
+        'x-api-key': apiKey, // API key should be in headers
+      },
+    );
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      throw Exception('Failed to load cat breeds: ${response.statusCode}');
+    }
   }
 
-  // 8
-  Future<String> getCatBreed(String breedName) async {
-    final network =
-        Network('$catImageAPIURL$breedString$breedName&$apiKeyString');
-    final catData = await network.getData();
-    return catData;
+  // Method to get an image
+  //(which might contain nested breed details) for a specific breed ID
+  Future<String> getCatBreed(String breedId) async {
+    // Renamed parameter from breedName to breedId for clarity
+    final response = await http.get(
+      Uri.parse('$proxyUrl$catImageAPIURL?breed_id=$breedId'),
+      // Proxy and add breed_id as query param
+      headers: {
+        'x-api-key': apiKey, // API key should be in headers
+      },
+    );
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      throw Exception(
+          'Failed to load cat image details for $breedId: ${response.statusCode}');
+    }
+  }
+
+  // >>> ADDED NEW METHOD <<<
+  // Method to get detailed information for a specific breed ID directly from the /breeds endpoint
+  Future<String> getBreedDetailsById(String breedId) async {
+    final response = await http.get(
+      // The /breeds endpoint can be searched by 'q' parameter which accepts breed ID or name
+      Uri.parse('$proxyUrl$catAPIURL/search?q=$breedId'), // Proxy the request
+      headers: {
+        'x-api-key': apiKey, // API key should be in headers
+      },
+    );
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      throw Exception('Failed to load specific breed details' +
+          'for $breedId: ${response.statusCode}');
+    }
   }
 }
